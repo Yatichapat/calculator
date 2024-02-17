@@ -23,6 +23,6 @@ if __name__ == '__main__':
     model = CalculatorModel()
     view = CalculatorView()
     controller = CalculatorController(model, view)
-    view.click_handler = controller.click_handler
+    view.update_display = controller.click_handler
     controller.run()
 
