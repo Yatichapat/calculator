@@ -1,28 +1,25 @@
-"""Display the calculator user interface."""
-from cal_view import CalculatorView
-from cal_model import CalculatorModel
-import tkinter as tk
-from tkinter import ttk
+"""Controller for model and view."""
+
 
 class CalculatorController:
-    def __init__(self, model, view):
-        self.model = model
-        self.view = view
+    """
+    Controller class for managing interactions between the calculator model and view.
+
+    Attributes:
+        model: The calculator model instance responsible
+            for performing calculations.
+        view: The calculator view instance responsible
+            for displaying the user interface.
+    """
+    def __init__(self, cal_model, cal_view):
+        """Initializes the CalculatorController with the provided calculator model and view."""
+        self.model = cal_model
+        self.view = cal_view
 
     def click_handler(self, event):
+        """for update the calculator model accordingly when user pressed button or combobox"""
         self.model.update_expression(event)
-        # self.view.insert(tk.END, self.model.current_express)
-        # print(click_button['text'])
 
     def run(self):
+        """run the calculator programme"""
         self.view.mainloop()
-
-
-if __name__ == '__main__':
-    # create the UI.  There is no controller (yet), so nothing to inject.
-    model = CalculatorModel()
-    view = CalculatorView()
-    controller = CalculatorController(model, view)
-    view.update_display = controller.click_handler
-    controller.run()
-

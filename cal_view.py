@@ -1,10 +1,20 @@
+"""Display the calculator user interface."""
 import tkinter as tk
 from tkinter import ttk
 from cal_model import CalculatorModel
 
 
 class CalculatorView(tk.Tk):
+    """implements the user interface for a calculator.
+
+    Attributes:
+        model: An instance of the CalculatorModel class to handle the calculator's logic.
+        display1: The entry widget used to display the current expression and results.
+        function_combo: The combobox widget used to select mathematical functions.
+        history_display: The text widget used to display the calculation history.
+    """
     def __init__(self):
+        """Initialize the CalculatorView."""
         super().__init__()
         self.title('Calculator')
         self.model = CalculatorModel()
@@ -12,7 +22,8 @@ class CalculatorView(tk.Tk):
 
     @property
     def frame(self):
-        return self
+        """for read calculator frame"""
+        return super()
 
     def init_components(self, columns) -> None:
         """Create a keypad of keys using the keynames list.
@@ -21,22 +32,23 @@ class CalculatorView(tk.Tk):
         rows as needed.
         :param columns: number of columns to use
         """
-        self.display1 = tk.Entry(self, justify='right', width=10, background='white', font=('Arial', 35),
-                                 foreground='black')
-        self.display1.grid(row=1, column=0, columnspan=4, sticky=tk.NSEW)
+        self.display1 = tk.Entry(self, justify='right', width=10, background='white',
+                                 font=('Arial', 25), foreground='black')
+        self.display1.grid(row=1, column=0, columnspan=2, sticky=tk.NSEW)
         self.display1.bind("<KeyPress>", lambda event: "break")
 
-        self.function_combo = ttk.Combobox(self, values=["exp", "ln", "log", "log10", "log2", "sqrt"],
-                                           font=('Arial', 15), state='readonly')
+        self.function_combo = ttk.Combobox(
+            self, values=["exp", "ln", "log", "log10", "log2", "sqrt"],
+            font=('Arial', 15), state='readonly')
         self.function_combo.grid(row=2, column=0, columnspan=1, sticky=tk.NSEW)
         self.function_combo.bind("<<ComboboxSelected>>", self.update_function_display)
 
-        label_function = tk.Label(self, text=': choose function', foreground='grey')
+        label_function = tk.Label(self, text=':choose function', foreground='grey')
         label_function.grid(row=2, column=1)
 
-        self.history_display = tk.Text(self, height=3, width=10, background='white', font=('Arial', 15),
-                                       foreground='grey')
-        self.history_display.grid(row=0, column=0, columnspan=4, sticky=tk.NSEW)
+        self.history_display = tk.Text(self, height=3, width=10, background='white',
+                                       font=('Arial', 15), foreground='grey')
+        self.history_display.grid(row=0, column=0, columnspan=2, sticky=tk.NSEW)
         self.history_display.bind("<KeyPress>", lambda event: "break")
 
         keypad = self.make_keypad(columns)
@@ -54,17 +66,23 @@ class CalculatorView(tk.Tk):
         self.set_resizable()
 
     def make_keypad(self, columns) -> tk.Frame:
-        keys = Keypad(self, ['CLR', 'DEL', 'mod', '(', ')', '**', '7', '8', '9', '4', '5', '6', '1', '2', '3', '0', '.', '='], columns=columns) #['7', '8', '9', '4', '5', '6', '1', '2', '3', '0', '.', '=']
+        """make key for 3 columns"""
+        keys = Keypad(self, ['CLR', 'DEL', 'mod',
+                             '(', ')', '**', '7',
+                             '8', '9', '4', '5',
+                             '6', '1', '2', '3',
+                             '0', '.', '='], columns=columns)
         return keys
 
     def make_operator_pad(self) -> tk.Frame:
+        """make key for 1 column"""
         operator = Keypad(self, ['/', '*', '-', '+'])
         return operator
 
     def update_display(self, event):
+        """for update display when user pressed the keypad"""
         click_button = event.widget['text']
         self.model.update_display(click_button)
-        print(click_button)
         self.display1.delete(0, tk.END)
         self.display1.insert(tk.END, self.model.current_express)
         if self.model.current_express == "Invalid":
@@ -74,12 +92,14 @@ class CalculatorView(tk.Tk):
         self.display_history()
 
     def update_function_display(self, event):
+        """update display for combobox math function"""
         select_function = self.function_combo.get()
         self.model.update_display(select_function)
         self.display1.delete(0, tk.END)
         self.display1.insert(tk.END, self.model.current_express)
 
     def display_history(self):
+        """display the calculate history"""
         self.history_display.delete(1.0, tk.END)
         for express, result in self.model.get_history():
             self.history_display.insert(tk.END, f"{express} = {result}\n")
@@ -106,18 +126,20 @@ class Keypad(tk.Frame):
         self.make_operator()
 
     def make_keypad(self, columns):
+        """make 3x3 keypad for putting digit and other function"""
         frame = tk.Frame
-        for i in range(len(self.keynames)):
+        for i, keyname in enumerate(self.keynames):
             column = i % columns
             row = i // columns
-            button = tk.Button(self, text=str(self.keynames[i]), width=5, font=5, foreground='black',
-                               background='lightgrey')
+            button = tk.Button(self, text=str(self.keynames[i]), width=5, font=5,
+                               foreground='black', background='lightgrey')
             button.grid(row=row, sticky=tk.NSEW, column=column, padx=2, pady=2)
             self.grid_rowconfigure(i // columns, weight=1)
             self.grid_columnconfigure(i % columns, weight=1)
         return frame
 
     def make_operator(self) -> tk.Frame:
+        """make operator keypad in calculator"""
         frame = tk.Frame(self)
         row = 0
         column = 0
@@ -133,6 +155,7 @@ class Keypad(tk.Frame):
         return frame
 
     def bind(self, sequence=None, func=None, add=None):
+        """Bind an event handler to an event sequence."""
         for button in self.winfo_children():
             button.bind(sequence, func, add)
 
@@ -170,5 +193,5 @@ class Keypad(tk.Frame):
 
     @property
     def frame(self):
+        """display each frame on key"""
         return super()
-
