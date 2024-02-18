@@ -21,23 +21,29 @@ class CalculatorView(tk.Tk):
         rows as needed.
         :param columns: number of columns to use
         """
-        self.display1 = tk.Entry(self, justify='right', width=10, background='black', font=('Arial', 35),
-                                 foreground='yellow')
+        self.display1 = tk.Entry(self, justify='right', width=10, background='white', font=('Arial', 35),
+                                 foreground='black')
         self.display1.grid(row=1, column=0, columnspan=4, sticky=tk.NSEW)
         self.display1.bind("<KeyPress>", lambda event: "break")
 
-        self.history_display = tk.Text(self, height=6, width=10, background='black', font=('Arial', 15),
+        self.function_combo = ttk.Combobox(self, values=["exp", "ln", "log", "log10", "log2", "sqrt"],
+                                           font=('Arial', 15), state='readonly')
+        self.function_combo.grid(row=2, column=0, columnspan=1, sticky=tk.NSEW)
+        self.function_combo.bind("<<ComboboxSelected>>", self.update_function_display)
+
+        label_function = tk.Label(self, text=': choose function', foreground='grey')
+        label_function.grid(row=2, column=1)
+
+        self.history_display = tk.Text(self, height=3, width=10, background='white', font=('Arial', 15),
                                        foreground='grey')
         self.history_display.grid(row=0, column=0, columnspan=4, sticky=tk.NSEW)
         self.history_display.bind("<KeyPress>", lambda event: "break")
 
         keypad = self.make_keypad(columns)
         operator = self.make_operator_pad()
-        func = self.make_function_pad()
 
-        func.grid(row=2, column=0, sticky=tk.NSEW, padx=2, pady=2)
-        keypad.grid(row=2, column=1, sticky=tk.NSEW, padx=2, pady=2)
-        operator.grid(row=2, column=2, sticky=tk.NSEW, padx=2, pady=2)
+        keypad.grid(row=3, column=0, sticky=tk.NSEW, padx=2, pady=2)
+        operator.grid(row=3, column=1, sticky=tk.NSEW, padx=2, pady=2)
 
         for button in keypad.winfo_children():
             button.bind("<Button-1>", self.update_display)
@@ -45,22 +51,15 @@ class CalculatorView(tk.Tk):
         for button in operator.winfo_children():
             button.bind("<Button-1>", self.update_display)
 
-        for button in func.winfo_children():
-            button.bind("<Button-1>", self.update_display)
-
         self.set_resizable()
 
     def make_keypad(self, columns) -> tk.Frame:
-        keys = Keypad(self, ['CLR', 'mod', 'DEL', '7', '8', '9', '4', '5', '6', '1', '2', '3', '0', '.', '='], columns=columns) #['7', '8', '9', '4', '5', '6', '1', '2', '3', '0', '.', '=']
+        keys = Keypad(self, ['CLR', 'DEL', 'mod', '(', ')', '**', '7', '8', '9', '4', '5', '6', '1', '2', '3', '0', '.', '='], columns=columns) #['7', '8', '9', '4', '5', '6', '1', '2', '3', '0', '.', '=']
         return keys
 
     def make_operator_pad(self) -> tk.Frame:
-        operator = Keypad(self, ['(', ')', '*', '/', '+', '-', '^'])
+        operator = Keypad(self, ['/', '*', '-', '+'])
         return operator
-
-    def make_function_pad(self)-> tk.Frame:
-        func_key = Keypad(self, ["exp", "ln", "log10", "log2", "sqrt"])
-        return func_key
 
     def update_display(self, event):
         click_button = event.widget['text']
@@ -71,8 +70,14 @@ class CalculatorView(tk.Tk):
         if self.model.current_express == "Invalid":
             self.display1.configure(foreground='red')
         else:
-            self.display1.configure(foreground='yellow')
+            self.display1.configure(foreground='black')
         self.display_history()
+
+    def update_function_display(self, event):
+        select_function = self.function_combo.get()
+        self.model.update_display(select_function)
+        self.display1.delete(0, tk.END)
+        self.display1.insert(tk.END, self.model.current_express)
 
     def display_history(self):
         self.history_display.delete(1.0, tk.END)
