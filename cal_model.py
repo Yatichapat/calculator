@@ -1,6 +1,7 @@
 """Model for Calculator"""
 from math import exp, log, log10, log2, sqrt
 from collections import deque
+import winsound
 
 
 class CalculatorModel:
@@ -65,8 +66,10 @@ class CalculatorModel:
             self.cal_history.append((self.current_express, result))
             self.current_express = str(result)
         except:
+
             self.current_express = ''
             self.current_express = "Invalid"
+            winsound.Beep(1000, 500)
 
     def get_history(self):
         """receive the calculation history"""
